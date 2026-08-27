@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>3D Ürün Kataloğu</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #222327, #121417);
+            color: #f5f5f5;
+            font-family: 'Segoe UI', Arial;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 25px;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0 0 30px;
+            font-size: 28px;
+        }
+
+        .section-title {
+            margin-top: 60px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 30px;
+        }
+
+        .item {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            padding: 15px;
+            border-radius: 16px;
+            transition: 0.3s;
+        }
+
+        .item:hover {
+            transform: translateY(-6px);
+            background: rgba(255, 255, 255, 0.09);
+        }
+
+        model-viewer {
+            width: 100%;
+            height: 300px;
+            border-radius: 12px;
+            background: #000;
+        }
+
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+
+            model-viewer {
+                height: 280px;
+            }
+        }
+
+        .title {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .price {
+            text-align: center;
+            color: #aaa;
+        }
+
+        .btn {
+            display: block;
+            margin: 10px auto;
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .modal-content {
+            width: 80%;
+            max-width: 900px;
+            background: #111;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .modal model-viewer {
+            height: 400px;
+        }
+
+        .close {
+            float: right;
+            cursor: pointer;
+            font-size: 22px;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 40px;
+        }
+
+        .top-logo {
+            width: 250px;
+            height: auto;
+        }
+
+        .color-palette-section {
+            margin: 40px 30px 0;
+            padding: 25px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .color-palette-title {
+            margin: 0 0 18px;
+            font-size: 24px;
+            color: #f5f5f5;
+        }
+
+        .color-swatches {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .color-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .color-swatch {
+            position: relative;
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            background-color: var(--swatch-color, #ffffff);
+            background-image: var(--swatch-image, none);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .color-swatch::before,
+        .color-swatch::after {
+            content: none;
+        }
+
+        .color-label {
+            font-size: 13px;
+            color: #e8e8e8;
+            text-align: center;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 85px;
+        }
+
+        .catalog-footer {
+            margin-top: 70px;
+            padding: 30px;
+            border-top: 1px solid #050505;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #121417;
+            color: #8990f8;
+        }
+
+        .footer-logo {
+            width: 120px;
+            height: auto;
+        }
+
+        .footer-info {
+            text-align: center;
+            font-size: 14px;
+            color: #ffffff;
+        }
+
+        .footer-info h3 {
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .footer-info p {
+            color: #c5c5c5;
+            margin: 5px 0;
+        }
+
+        .footer-design {
+            color: #ffdf70;
+            font-weight: 700;
+            text-shadow: 0 0 6px rgba(255, 223, 112, 0.25);
+            display: inline-block;
+            padding-bottom: 2px;
+        }
+
+        .footer-design-line {
+            display: inline-block;
+            border-bottom: 2px solid #ffdf70;
+            padding-bottom: 2px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <body>
+
+        <div class="logo-container">
+            <img src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/PANELON-PNGBEYAZ.png"
+                alt="PANELON Logo" class="top-logo">
+        </div>
+
+        <h1>PANELON 3D KATALOG</h1>
+        <h2>İÇ MEKAN</h2>
+
+        <div class="grid">
+
+
+            <!-- ÜRÜN 01 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ikilihampanel.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">2 Bölmeli Ham Panel</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ikilihampanel.glb',
+            '2 Bölmeli Ham Panel',
+            '14.30 cm 280 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 02 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ikibolmeli.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">2 Bölmeli Yarım Kaplama Panel</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ikibolmeli.glb',
+            '2 Bölmeli Yarım Kaplama Panel',
+            '14.30 cm 280 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 03 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/2liboyal%C4%B1.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">2 Bölmeli Boyalı Duvar Paneli</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/2liboyal%C4%B1.glb',
+            '2 Bölmeli Boyalı Duvar Paneli',
+            '14.30 cm 280 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 04 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/2bolmelitamkaplamali.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">2 Bölmeli Tam Kaplamalı Panel</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/2bolmelitamkaplamali.glb',
+            '2 Bölmeli Tam Kaplamalı Panel',
+            '14.30 cm 280 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 05 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/2liantrasit.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">2 Bölmeli Boyalı Panel</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/2liantrasit.glb',
+            '2 Bölmeli Boyalı Panel',
+            '14.30 cm 280 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 06 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/2livizon.glb" auto-rotate
+                    camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">2 Bölmeli Boyalı Panel</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/2livizon.glb',
+            '2 Bölmeli Boyalı Panel',
+            '14.30 cm 280 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 07 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ucluhampanel.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">3 Bölmeli Ham Panel</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ucluhampanel.glb',
+            '3 Bölmeli Ham Panel',
+            '16.80 cm 280 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 08 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ikibolmeliwood.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">3 Bölmeli Yarım Kaplama Panel</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ikibolmeliwood.glb',
+            '3 Bölmeli Yarım Kaplama Panel',
+            '16.80 cm 280 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 09 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/griboyali3lu.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">3 Bölmeli Boyalı Duvar Paneli</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/griboyali3lu.glb',
+            '3 Bölmeli Boyalı Duvar Paneli',
+            '16.80 cm 280 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 10 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/3bolmelitamkaplama.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">3 Bölmeli Tam Kaplamalı Panel</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/3bolmelitamkaplama.glb',
+            '3 Bölmeli Tam Kaplamalı Panel',
+            '16.80 cm 280 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 11 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/embrossluceviz.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">3 Bölmeli Tam Kaplamalı Panel</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/embrossluceviz.glb',
+            '3 Bölmeli Tam Kaplamalı Panel Embosslu Ceviz',
+            '16.80 cm 280 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 12 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/traverten.glb" auto-rotate
+                    camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">3 Bölmeli Tam Kaplamalı Panel</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/traverten.glb',
+            '3 Bölmeli Tam Kaplamalı Panel Traverten',
+            '16.80 cm 280 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 13 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/lambrimese.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Kapı Lambrisi</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/lambrimese.glb',
+            'Kaplamalı Kapı Lambrisi',
+            '20 lik Lambri',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 14 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/lambrisade.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Ham Kapı Lambrisi</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/lambrisade.glb',
+            'Ham Kapı Lambrisi',
+            '20 lik Lambri',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 15 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/sadetavanlambri.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Tavan Lambrisi</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/sadetavanlambri.glb',
+            'Ham Tavan Lambrisi',
+            '20 lik Tek Fugalı',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 16 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/renklitavan.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Renkli Boyalı Tavan Lambrisi</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/renklitavan.glb',
+            'Renkli Boyalı Tavan Lambrisi',
+            '20 lik Tek Fugalı',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+
+            <!-- ÜRÜN 17 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/Lkosesade.glb" auto-rotate
+                    camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Pervaz Prf. Ham</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/Lkosesade.glb',
+            'Pervaz Prf. Ham',
+            '60/90 - 60/150 Kapı Pervaz',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 18 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/Lkosedoku.glb" auto-rotate
+                    camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Pervaz Prf. Kaplamalı</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/Lkosedoku.glb',
+            'Pervaz Prf. Kaplamalı',
+            '60/90 - 60/150 Kapı Pervaz',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 19 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/kornis-3d/main/kornis.glb" auto-rotate
+                    camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Korniş</div>
+                <div class="price">İÇ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/kornis-3d/main/kornis.glb',
+            'Korniş',
+            '3 ve 4 Raylı',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+
+
+
+        </div>
+
+        <h2 class="section-title">DIŞ MEKAN</h2>
+
+        <div class="grid">
+
+
+
+
+            <!-- ÜRÜN 01 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ikilihampanel.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">2 Bölmeli Ham Panel</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ikilihampanel.glb',
+            '2 Bölmeli Ham Panel',
+            '14.30 cm 320 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 02 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ikibolmeli.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">2 Bölmeli Yarım Kaplama Panel</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ikibolmeli.glb',
+            '2 Bölmeli Yarım Kaplama Panel',
+            '14.30 cm 320 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 03 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/2bolmelitamkaplamali.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">2 Bölmeli Tam Kaplamalı Panel</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/2bolmelitamkaplamali.glb',
+            '2 Bölmeli Tam Kaplamalı Panel',
+            '14.30 cm 320 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 04 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/2liantrasit.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">2 Bölmeli Kaplamalı Panel</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/2liantrasit.glb',
+            '2 Bölmeli Kaplamalı Panel',
+            '14.30 cm 320 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 05 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/2livizon.glb" auto-rotate
+                    camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">2 Bölmeli Kaplamalı Panel</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/2livizon.glb',
+            '2 Bölmeli Kaplamalı Panel',
+            '14.30 cm 320 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 06 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ucluhampanel.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">3 Bölmeli Ham Panel</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ucluhampanel.glb',
+            '3 Bölmeli Ham Panel',
+            '16.80 cm 320 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 07 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ikibolmeliwood.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">3 Bölmeli Yarım Kaplama Panel</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/ikibolmeliwood.glb',
+            '3 Bölmeli Yarım Kaplama Panel',
+            '16.80 cm 320 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+            <!-- ÜRÜN 08 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/3bolmelitamkaplama.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">3 Bölmeli Tam Kaplamalı Panel</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/3bolmelitamkaplama.glb',
+            '3 Bölmeli Tam Kaplamalı Panel',
+            '16.80 cm 320 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 09 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/embrossluceviz.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">3 Bölmeli Tam Kaplamalı Panel</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/embrossluceviz.glb',
+            '3 Bölmeli Tam Kaplamalı Panel Embosslu Ceviz',
+            '16.80 cm 320 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 10 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/traverten.glb" auto-rotate
+                    camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">3 Bölmeli Tam Kaplamalı Panel</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/traverten.glb',
+            '3 Bölmeli Tam Kaplamalı Panel Traverten',
+            '16.80 cm 320 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 11 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/lambrimese.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Kaplamalı Kapı Lambrisi</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/lambrimese.glb',
+            'Kaplamalı Kapı Lambrisi',
+            '20 lik Lambri',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 12 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/lambrisade.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Ham Kapı Lambrisi</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/lambrisade.glb',
+            'Ham Kapı Lambrisi',
+            '20 lik Lambri',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 13 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/sadetavanlambri.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Ham Tavan Lambrisi</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/sadetavanlambri.glb',
+            'Ham Tavan Lambrisi',
+            '20 lik Tek Fugalı',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 14 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/renklitavan.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Boyalı Tavan Lambrisi</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/renklitavan.glb',
+            'Boyalı Tavan Lambrisi',
+            '20 lik Tek Fugalı',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+
+            <!-- ÜRÜN 15 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/Lkosesade.glb" auto-rotate
+                    camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Pervaz Prf. Ham</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/Lkosesade.glb',
+            'Pervaz Prf. Ham',
+            '60/90 - 60/150',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+            <!-- ÜRÜN 16 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/Lkosedoku.glb" auto-rotate
+                    camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Pervaz Prf. Kaplamalı</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/Lkosedoku.glb',
+            'Pervaz Prf. Kaplamalı',
+            '60/90 - 60/150',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+
+
+            <!-- ÜRÜN 17 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/filebake.glb" auto-rotate
+                    camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Fileli Köşe</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/filebake.glb',
+            'Fileli Köşe',
+            '7X7 65 gr',
+            '7X7 110 gr'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 18 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/beyazfile.glb" auto-rotate
+                    camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Beyaz Fileli Köşe </div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/beyazfile.glb',
+            'Beyaz Fileli Köşe',
+            '110 gr 2.5 m',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+            <!-- ÜRÜN 19 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/fileprofil.glb"
+                    auto-rotate camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Filesiz Profil</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/fileprofil.glb',
+            'Filesiz Profil',
+            '110 gr 2.5 m',
+            '--------'
+        )">Detay</button>
+            </div>
+
+
+
+
+
+
+            <!-- ÜRÜN 20 -->
+            <div class="item">
+                <model-viewer src="https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/serencrp.glb" auto-rotate
+                    camera-controls disable-tap camera-target="auto auto auto"></model-viewer>
+                <div class="title">Seren Crp Kapı Dolgusu</div>
+                <div class="price">DIŞ MEKAN</div>
+                <button class="btn" onclick="openModal(
+            'https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/serencrp.glb',
+            'Seren Crp Kapı Dolgusu',
+            '2500 kg 210 cm',
+            '--------'
+        )">Detay</button>
+            </div>
+        </div>
+
+
+
+        <!-- MODAL -->
+        <div class="modal" id="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">✖</span>
+
+                <model-viewer id="modalModel" auto-rotate camera-controls disable-tap
+                    camera-target="auto auto auto"></model-viewer>
+
+                <h2 id="modalTitle"></h2>
+                <p id="modalDesc"></p>
+                <p id="modalPrice"></p>
+            </div>
+        </div>
+
+        <script>
+            function openModal(src, title, desc, price) {
+                document.getElementById("modal").style.display = "flex";
+                document.getElementById("modalModel").src = src;
+                document.getElementById("modalTitle").innerText = title;
+                document.getElementById("modalDesc").innerText = desc;
+                document.getElementById("modalPrice").innerText = price;
+            }
+
+            function closeModal() {
+                document.getElementById("modal").style.display = "none";
+            }
+        </script>
+
+        <section class="color-palette-section">
+            <h3 class="color-palette-title">2 VE 3 BÖLMELİ DUVAR PANELİ İÇ MEKAN RENK (KAPLAMA) SEÇENEKLERİ</h3>
+            <div class="color-swatches">
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #7b4d2e; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/koyumese.jpg');"></div>
+                    <div class="color-label">Koyu Meşe</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #d9c4a7; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/acikkayac.jpg');"></div>
+                    <div class="color-label">Açık Kayaç</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #7d7168; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/koyukayac.jpg');"></div>
+                    <div class="color-label">Koyu Kayaç</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #4b4e52; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/koyubeton.jpg');"></div>
+                    <div class="color-label">Koyu Beton</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #5a2a22; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/koyuceviz.jpg');"></div>
+                    <div class="color-label">Koyu Ceviz</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #d9a54a; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/altinmese.jpg');"></div>
+                    <div class="color-label">Altın Meşe</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #8e6b35; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/koyualtinmese.jpg');"></div>
+                    <div class="color-label">Koyu Altın Meşe</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #4d4d4d; --swatch-image: none;"></div>
+                    <div class="color-label">Antrasit</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #fffefe; --swatch-image: none;"></div>
+                    <div class="color-label">Kristal Beyaz</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #b37647; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/findik.jpg');"></div>
+                    <div class="color-label">Fındık</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="color-palette-section">
+            <h3 class="color-palette-title">2 VE 3 BÖLMELİ DUVAR PANELİ DIŞ MEKAN RENK (KAPLAMA) SEÇENEKLERİ</h3>
+            <div class="color-swatches">
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #5a2a22; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/koyuceviz.jpg');"></div>
+                    <div class="color-label">Koyu Ceviz</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #d9a54a; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/altinmese.jpg');"></div>
+                    <div class="color-label">Altın Meşe</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #8e6b35; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/koyualtinmese.jpg');"></div>
+                    <div class="color-label">Koyu Altın Meşe</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #4d4d4d; --swatch-image: none;"></div>
+                    <div class="color-label">Antrasit</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #7b4d2e; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/koyumese.jpg');"></div>
+                    <div class="color-label">Koyu Meşe</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #b37647; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/findik.jpg');"></div>
+                    <div class="color-label">Fındık</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="color-palette-section">
+            <h3 class="color-palette-title">TAVAN LAMBRİSİ RENK (BOYA) SEÇENEKLERİ</h3>
+            <div class="color-swatches">
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #bfc3bf; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/griakcaagac.jpeg');"></div>
+                    <div class="color-label">Gri Akçaağaç</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #f5f5f1; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/beyazakcaagac.jpeg');"></div>
+                    <div class="color-label">Beyaz Akçaağaç</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #b8b6b2; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/gribudakliakca.jpeg');"></div>
+                    <div class="color-label">Gri Budaklı Akça</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #e6e0d7; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/beyazbudakl%C4%B1akcaagac.jpeg');"></div>
+                    <div class="color-label">Beyaz Budaklı Akça</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #f7f7f7; --swatch-image: none;"></div>
+                    <div class="color-label">Beyaz ( Ham )</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #4d4d4d; --swatch-image: none;"></div>
+                    <div class="color-label">Antrasit</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="color-palette-section">
+            <h3 class="color-palette-title">2 VE 3 BÖLMELİ DUVAR PANELİ İÇ MEKAN RENK (BOYA) SEÇENEKLERİ</h3>
+            <div class="color-swatches">
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #bfc3bf; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/griakcaagac.jpeg');"></div>
+                    <div class="color-label">Gri Akçaağaç</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #15287e; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/beyazakcaagac.jpeg');"></div>
+                    <div class="color-label">Beyaz Akçaağaç</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #b8b6b2; --swatch-image:url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/gribudakliakca.jpeg');"></div>
+                    <div class="color-label">Gri Budaklı Akça</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #661f1f; --swatch-image: url('https://raw.githubusercontent.com/Nurbanu3D/2-b-lmeli/main/beyazbudakl%C4%B1akcaagac.jpeg');"></div>
+                    <div class="color-label">Beyaz Budaklı Akça</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #f7f7f7; --swatch-image: none;"></div>
+                    <div class="color-label">Beyaz ( Ham )</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="--swatch-color: #4d4d4d; --swatch-image: none;"></div>
+                    <div class="color-label">Antrasit</div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="catalog-footer">
+            <div class="footer-info">
+
+                <h3>Duvar panellerimizde, üstün kalite ve estetik anlayışını yansıtan, dekoratif yüzey
+                    kaplama malzemeleri kullanılmaktadır. Tüm kaplama malzemelerimiz, sektörün önde gelen
+                    markaları LG (Hyundai LG) ve Legno Deco’dan özenle temin edilerek ürünlerimize yüksek
+                    yüzey kalitesi, şık görünüm ve uzun ömürlü dayanıklılık kazandırmaktadır.
+
+
+                    <h3>Standart Renklerin Dışında Proje Bazlı İstenilen Ölçü ve Ebatlarda Üretim Yapılmaktadır.
+
+
+                    
+                     
+                    <h3>Malıköy Başkent OSB Mahallesi 19. Cad. No:38 Sincan / ANKARA</h3>
+                    <h3><strong>Tel:</strong> 0312 512 01 06 - 116
+                        <strong>Gsm:</strong> 0532 488 12 35</h3>
+                <h3>www.panelon.com.tr / Instagram: srzpanelon</h3>
+                <h3 class="footer-design"><strong>Katalog Tasarımı</strong></span></h3>
+
+                <p> boydagnurbanu@gmail.com </p>
+                <p>PANELON A.Ş. için <strong> Nurbanu Boydağ </strong> tarafından tasarlanmıştır.</p>
+            </div>
+        </footer>
+    </body>
+
+</html>
